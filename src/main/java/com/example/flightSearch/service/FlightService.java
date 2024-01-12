@@ -4,8 +4,9 @@ import com.example.flightSearch.entity.Airport;
 import com.example.flightSearch.entity.Flight;
 import com.example.flightSearch.mapper.FlightMapper;
 import com.example.flightSearch.modal.dto.FlightDto;
+import com.example.flightSearch.modal.dto.FlightForFilterDto;
 import com.example.flightSearch.modal.request.CreateFlightRequest;
-import com.example.flightSearch.modal.request.FilterFlightRequest;
+import com.example.flightSearch.modal.request.SearchFlightRequest;
 import com.example.flightSearch.modal.request.UpdateFlightRequest;
 import com.example.flightSearch.repository.FlightRepository;
 import com.example.flightSearch.utils.FlightSpecifications;
@@ -35,11 +36,11 @@ public class FlightService {
         return flightMapper.toDto(getById(id));
     }
 
-    public List<FlightDto> filter(FilterFlightRequest filterFlightRequest) {
+    public List<FlightForFilterDto> search(SearchFlightRequest searchFlightRequest) {
         Specification<Flight> spec = Specification.where(null);
-        spec = spec.and(FlightSpecifications.getFilterQuery(filterFlightRequest));
+        spec = spec.and(FlightSpecifications.getFilterQuery(searchFlightRequest));
         List<Flight> flights = flightRepository.findAll(spec);
-        return flightMapper.toDtoList(flights);
+        return flightMapper.toDtoListForFilter(flights,searchFlightRequest.getReturnDate());
     }
 
     public List<FlightDto> getAll() {

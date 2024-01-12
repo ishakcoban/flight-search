@@ -2,8 +2,7 @@ package com.example.flightSearch.modal.dto;
 
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

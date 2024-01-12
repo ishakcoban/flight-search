@@ -1,8 +1,9 @@
 package com.example.flightSearch.controller;
 
 import com.example.flightSearch.modal.dto.FlightDto;
+import com.example.flightSearch.modal.dto.FlightForFilterDto;
 import com.example.flightSearch.modal.request.CreateFlightRequest;
-import com.example.flightSearch.modal.request.FilterFlightRequest;
+import com.example.flightSearch.modal.request.SearchFlightRequest;
 import com.example.flightSearch.modal.request.UpdateFlightRequest;
 import com.example.flightSearch.service.FlightService;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +28,8 @@ public class FlightController {
     }
 
     @PostMapping("/filter")
-    public List<FlightDto> filter(@RequestBody FilterFlightRequest filterFlightRequest) throws Exception {
-        return flightService.filter(filterFlightRequest);
+    public List<FlightForFilterDto> search(@RequestBody SearchFlightRequest filterFlightRequest) throws Exception {
+        return flightService.search(filterFlightRequest);
     }
 
     @PostMapping

@@ -1,8 +1,10 @@
 package com.example.flightSearch.modal.dto;
 
 import com.example.flightSearch.entity.Airport;
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -10,11 +12,10 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FlightDto {
-    private Long id;
+public class DepartureDto {
+
     private Airport departureAirport;
     private Airport arrivalAirport;
     private LocalDateTime departureDate;
-    private LocalDateTime returnDate;
     private double price;
 }

@@ -1,5 +1,6 @@
-package com.example.flightSearch.modal.request;
+package com.example.flightSearch.modal.dto;
 
+import com.example.flightSearch.entity.Airport;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,13 +10,12 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class FilterFlightRequest {
+@AllArgsConstructor
+public class ReturnDto {
 
-    private String departureAirport;
-    private String arrivalAirport;
+    private Airport departureAirport;
+    private Airport arrivalAirport;
     private LocalDateTime departureDate;
-    private LocalDateTime returnDate;
     private double price;
 }
