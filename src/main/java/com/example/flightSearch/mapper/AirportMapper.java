@@ -37,7 +37,7 @@ public class AirportMapper {
                 .build();
     }
 
-    public List<AirportDto> toDtoList(List<Airport> adverts) {
-        return adverts.stream().map(this::toDto).collect(Collectors.toList());
+    public List<AirportDto> toDtoList(List<Airport> airports) {
+        return airports.stream().map(this::toDto).collect(Collectors.toList());
     }
 }

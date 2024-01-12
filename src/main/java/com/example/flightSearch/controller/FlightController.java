@@ -37,6 +37,11 @@ public class FlightController {
         flightService.create(createFlightRequest);
     }
 
+    @PostMapping("/multiples")
+    public void saveAll(@RequestBody List<CreateFlightRequest> createFlightRequests) {
+        flightService.saveAll(createFlightRequests);
+    }
+
     @PutMapping("/{id}")
     public void update(@PathVariable Long id,@RequestBody UpdateFlightRequest updateFlightRequest) throws Exception {
         flightService.update(id,updateFlightRequest);

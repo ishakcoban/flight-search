@@ -9,16 +9,21 @@ import com.example.flightSearch.modal.request.CreateFlightRequest;
 import com.example.flightSearch.modal.request.SearchFlightRequest;
 import com.example.flightSearch.modal.request.UpdateFlightRequest;
 import com.example.flightSearch.repository.FlightRepository;
+import com.example.flightSearch.utils.FlightMockApi;
 import com.example.flightSearch.utils.FlightSpecifications;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +45,7 @@ public class FlightService {
         Specification<Flight> spec = Specification.where(null);
         spec = spec.and(FlightSpecifications.getFilterQuery(searchFlightRequest));
         List<Flight> flights = flightRepository.findAll(spec);
-        return flightMapper.toDtoListForFilter(flights,searchFlightRequest.getReturnDate());
+        return flightMapper.toDtoListForFilter(flights, searchFlightRequest.getReturnDate());
     }
 
     public List<FlightDto> getAll() {
@@ -73,6 +78,10 @@ public class FlightService {
 
     }
 
+    public void saveAll(List<CreateFlightRequest> createFlightRequests) {
+        createFlightRequests.forEach(this::create);
+    }
+
     public void update(Long id, UpdateFlightRequest updateFlightRequest) {
 
         Airport departureAirport = airportService.getById(updateFlightRequest.getDepartureAirport());
@@ -101,6 +110,18 @@ public class FlightService {
     public void delete(Long id) {
         Flight flight = getById(id);
         flightRepository.delete(flight);
+    }
+
+    @Scheduled(cron = "0 16 22 * * *")
+    public void updateFlightData() {
+
+        List<CreateFlightRequest> randomFlightData = FlightMockApi.getFlights();
+
+        String mockApiUrl = "http://localhost:8080/api/flights/multiples";
+        RestTemplate restTemplate = new RestTemplate();
+
+        restTemplate.postForLocation(mockApiUrl, randomFlightData);
+
     }
 
 
