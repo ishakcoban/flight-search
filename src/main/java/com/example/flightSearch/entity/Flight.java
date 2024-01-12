@@ -3,6 +3,8 @@ package com.example.flightSearch.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -20,11 +22,13 @@ public class Flight {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "departureAirport_id", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "departureAirport_id")
     private Airport departureAirport;
 
     @ManyToOne
-    @JoinColumn(name = "arrivalAirport_id", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "arrivalAirport_id")
     private Airport arrivalAirport;
 
     @Column(nullable = false)

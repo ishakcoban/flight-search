@@ -17,7 +17,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfiguration{
+public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
@@ -31,7 +31,7 @@ public class SecurityConfiguration{
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/**","/swagger-ui/**")
+                .requestMatchers("/**", "/swagger-ui/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -45,6 +45,7 @@ public class SecurityConfiguration{
 
         return http.build();
     }
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
 

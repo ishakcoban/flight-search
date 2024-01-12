@@ -16,18 +16,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FlightMapper {
 
-    public FlightDto toDto(Flight flight){
+    public FlightDto toDto(Flight flight) {
 
         return FlightDto.builder()
                 .id(flight.getId())
                 .departureAirport(flight.getDepartureAirport())
                 .arrivalAirport(flight.getArrivalAirport())
                 .departureDate(flight.getDepartureDate())
-                .departureDate(flight.getReturnDate())
+                .returnDate(flight.getReturnDate())
                 .price(flight.getPrice())
                 .build();
     }
-    public Flight create(CreateFlightRequest createFlightRequest, Airport departureAirport,Airport arrivalAirport){
+
+    public Flight create(CreateFlightRequest createFlightRequest, Airport departureAirport, Airport arrivalAirport) {
 
         return Flight.builder()
                 .departureAirport(departureAirport)
@@ -38,8 +39,7 @@ public class FlightMapper {
                 .build();
     }
 
-    public Flight update(Long id, Airport departureAirport,Airport arrivalAirport, UpdateFlightRequest updateFlightRequest){
-
+    public Flight update(Long id, Airport departureAirport, Airport arrivalAirport, UpdateFlightRequest updateFlightRequest) {
         return Flight.builder()
                 .id(id)
                 .departureAirport(departureAirport)

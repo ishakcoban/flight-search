@@ -17,7 +17,7 @@ public class UserController {
 
     @GetMapping
     public UserDto get() {
-        return userService.getById(Long.valueOf(MDC.get(MdcConstant.X_USER_ID)));
+        return userService.get(Long.valueOf(MDC.get(MdcConstant.X_USER_ID)));
     }
 
     @PutMapping

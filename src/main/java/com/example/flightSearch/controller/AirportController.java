@@ -3,6 +3,7 @@ package com.example.flightSearch.controller;
 import com.example.flightSearch.modal.dto.AirportDto;
 import com.example.flightSearch.modal.dto.FlightDto;
 import com.example.flightSearch.modal.request.CreateAirportRequest;
+import com.example.flightSearch.modal.request.UpdateAirportRequest;
 import com.example.flightSearch.service.AirportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +31,8 @@ public class AirportController {
     }
 
     @PutMapping("/{id}")
-    public void update(@PathVariable Long id,@RequestBody String city) {
-        airportService.update(id,city);
+    public void update(@PathVariable Long id,@RequestBody UpdateAirportRequest updateAirportRequest) {
+        airportService.update(id,updateAirportRequest);
     }
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
