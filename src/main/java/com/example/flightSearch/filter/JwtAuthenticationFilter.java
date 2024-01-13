@@ -1,4 +1,4 @@
-package com.example.flightSearch.config;
+package com.example.flightSearch.filter;
 
 import com.example.flightSearch.entity.User;
 import com.example.flightSearch.service.TokenService;

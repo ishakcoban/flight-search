@@ -48,8 +48,5 @@ public class UserMapper {
                 .password(passwordEncoder.encode(userUpdateRequest.getPassword()))
                 .build();
     }
-    public List<UserDto> toDtoList(List<User> users){
-        return users.stream().map(this::toDto).collect(Collectors.toList());
-    }
 
 }

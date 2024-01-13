@@ -117,7 +117,7 @@ public class FlightService {
 
         List<CreateFlightRequest> randomFlightData = FlightMockApi.getFlights();
 
-        String mockApiUrl = "http://localhost:8080/api/flights/multiples";
+        String mockApiUrl = "http://localhost:8080/api/flights/all";
         RestTemplate restTemplate = new RestTemplate();
 
         restTemplate.postForLocation(mockApiUrl, randomFlightData);
