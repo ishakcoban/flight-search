@@ -20,10 +20,8 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -123,6 +121,5 @@ public class FlightService {
         restTemplate.postForLocation(mockApiUrl, randomFlightData);
 
     }
-
 
 }
