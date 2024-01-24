@@ -1,6 +1,6 @@
 # flight-search-api
 
-This project includes Flight Search Api for `Travel To Future Program of Amadeus`
+This project includes Flight Search Api
 
 ## Project Structure
 
