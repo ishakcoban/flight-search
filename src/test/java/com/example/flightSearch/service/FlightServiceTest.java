@@ -2,25 +2,24 @@ package com.example.flightSearch.service;
 
 import com.example.flightSearch.entity.Airport;
 import com.example.flightSearch.entity.Flight;
-import com.example.flightSearch.mapper.AirportMapper;
 import com.example.flightSearch.mapper.FlightMapper;
-import com.example.flightSearch.modal.request.UpdateAirportRequest;
+import com.example.flightSearch.modal.request.CreateFlightRequest;
 import com.example.flightSearch.modal.request.UpdateFlightRequest;
-import com.example.flightSearch.repository.AirportRepository;
 import com.example.flightSearch.repository.FlightRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class FlightServiceTest {
@@ -39,94 +38,207 @@ public class FlightServiceTest {
 
     @Test
     public void it_should_get_by_id() {
-
-        long id = 1L;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        // Given
         Airport departureAirport = Airport.builder()
-                .id(id)
-                .city("Ankara")
+                .id(1L)
+                .city("airport 1")
                 .build();
 
         Airport arrivalAirport = Airport.builder()
-                .id(id)
-                .city("Izmir")
+                .id(2L)
+                .city("airport 2")
                 .build();
 
         Flight flight = Flight.builder()
-                .id(id)
+                .id(3L)
                 .departureAirport(departureAirport)
                 .arrivalAirport(arrivalAirport)
-                .departureDate(LocalDateTime.parse("2024-03-13 17:09:42.411", formatter))
-                .returnDate(LocalDateTime.parse("2024-03-13 20:09:42.411", formatter))
+                .departureDate(LocalDateTime.now().plusDays(1))
+                .returnDate(LocalDateTime.now().plusDays(2))
                 .price(1200)
                 .build();
 
-        when(flightRepository.findById(id)).thenReturn(Optional.of(flight));
+        when(flightRepository.findById(flight.getId())).thenReturn(Optional.of(flight));
 
-        Flight expectedFlight = flightService.getById(id);
+        // When
+        Flight expectedFlight = flightService.getById(flight.getId());
 
-        verify(flightRepository).findById(id);
+        // Then
+        verify(flightRepository).findById(flight.getId());
         assertEquals(expectedFlight, flight);
 
     }
 
     @Test
-    public void it_should_delete() {
-
-        long id = 1L;
-        Flight flight = Flight.builder()
-                .id(id)
+    public void it_should_create_when_valid_request() {
+        // Given
+        CreateFlightRequest request = CreateFlightRequest.builder()
+                .departureAirport(1L)
+                .arrivalAirport(2L)
+                .departureDate(LocalDateTime.now().plusDays(1))
+                .returnDate(LocalDateTime.now().plusDays(2))
+                .price(100.0)
                 .build();
 
-        when(flightRepository.findById(id)).thenReturn(Optional.of(flight));
+        Airport departureAirport = Airport.builder()
+                .id(1L)
+                .city("airport 1")
+                .build();
 
-        flightService.delete(id);
+        Airport arrivalAirport = Airport.builder()
+                .id(2L)
+                .city("airport 2")
+                .build();
 
-        verify(flightRepository).delete(flight);
+        Flight flight = Flight.builder()
+                .id(1L)
+                .departureAirport(departureAirport)
+                .arrivalAirport(arrivalAirport)
+                .departureDate(request.getDepartureDate())
+                .returnDate(request.getReturnDate())
+                .build();
+        when(airportService.getById(anyLong())).thenReturn(departureAirport, arrivalAirport);
+        when(flightMapper.create(request, departureAirport, arrivalAirport)).thenReturn(flight);
+
+        // When
+        flightService.create(request);
+
+        // Then
+        verify(flightRepository).save(flight);
+    }
+
+    @Test
+    public void it_should_throw_bad_request_when_invalid_request_includes_same_departure_and_arrival_airports() {
+        // Given
+        CreateFlightRequest request = CreateFlightRequest.builder()
+                .departureAirport(1L)
+                .arrivalAirport(1L)
+                .departureDate(LocalDateTime.now().plusDays(1))
+                .returnDate(LocalDateTime.now().plusDays(2))
+                .price(100.0)
+                .build();
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            flightService.create(request);
+        });
+
+        // Asserting the expected HttpStatus
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Airports that are provided cannot be same!", exception.getReason());
+    }
+
+    @Test
+    public void it_should_throw_bad_request_when_departure_date_in_invalid_request_is_in_past() {
+        // Given
+        CreateFlightRequest request = CreateFlightRequest.builder()
+                .departureAirport(1L)
+                .arrivalAirport(2L)
+                .departureDate(LocalDateTime.now().minusDays(1))
+                .returnDate(LocalDateTime.now().plusDays(1))
+                .price(100)
+                .build();
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            flightService.create(request);
+        });
+
+        // Asserting the expected HttpStatus
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("The departure date must be after the now!", exception.getReason());
+    }
+
+    @Test
+    public void it_should_throw_bad_request_when_return_date_in_invalid_request_is_before_departure_date() {
+        // Given
+        CreateFlightRequest request = CreateFlightRequest.builder()
+                .departureAirport(1L)
+                .arrivalAirport(2L)
+                .departureDate(LocalDateTime.now().plusDays(2))
+                .returnDate(LocalDateTime.now().plusDays(1))
+                .price(100)
+                .build();
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            flightService.create(request);
+        });
+
+        // Asserting the expected HttpStatus
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("The arrival date must be after the departure date!", exception.getReason());
+    }
+
+    @Test
+    public void it_should_throw_bad_request_when_price_in_invalid_request_is_less_than_zero() {
+        // Given
+        CreateFlightRequest request = CreateFlightRequest.builder()
+                .departureAirport(1L)
+                .arrivalAirport(2L)
+                .departureDate(LocalDateTime.now().plusDays(1))
+                .returnDate(LocalDateTime.now().plusDays(2))
+                .price(-100)
+                .build();
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> {
+            flightService.create(request);
+        });
+
+        // Asserting the expected HttpStatus
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("Price must not be smaller than zero!", exception.getReason());
     }
 
     @Test
     public void it_should_update() {
+        // Given
+        UpdateFlightRequest request = UpdateFlightRequest.builder()
+                .departureAirport(1L)
+                .arrivalAirport(2L)
+                .departureDate(LocalDateTime.now().plusDays(1))
+                .returnDate(LocalDateTime.now().plusDays(2))
+                .price(-100)
+                .build();
 
-        long flight_id = 1L;
-        long first_airport_id = 2L;
-        long second_airport_id = 3L;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
+        Flight flight = Flight.builder()
+                .id(1L)
+                .build();
 
         Airport departureAirport = Airport.builder()
-                .id(first_airport_id)
-                .city("Ankara")
+                .id(1L)
+                .city("airport 1")
                 .build();
 
         Airport arrivalAirport = Airport.builder()
-                .id(second_airport_id)
-                .city("Izmir")
+                .id(2L)
+                .city("airport 2")
                 .build();
 
-        UpdateFlightRequest request = UpdateFlightRequest.builder()
-                .departureAirport(departureAirport.getId())
-                .arrivalAirport(arrivalAirport.getId())
-                .departureDate(LocalDateTime.parse("2024-03-13 17:09:42.411", formatter))
-                .returnDate(LocalDateTime.parse("2024-03-13 20:09:42.411", formatter))
-                .price(1250)
-                .build();
+        when(flightService.getById(flight.getId())).thenReturn(flight);
+        when(airportService.getById(request.getDepartureAirport())).thenReturn(departureAirport);
+        when(airportService.getById(request.getArrivalAirport())).thenReturn(arrivalAirport);
+        when(flightMapper.update(flight.getId(),departureAirport,arrivalAirport,request)).thenReturn(flight);
 
-        Flight updatedFlight = Flight.builder()
-                .id(flight_id)
-                .departureAirport(departureAirport)
-                .arrivalAirport(arrivalAirport)
-                .departureDate(LocalDateTime.parse("2024-03-13 17:09:42.411", formatter))
-                .returnDate(LocalDateTime.parse("2024-03-13 20:09:42.411", formatter))
-                .price(1250)
-                .build();
+        // When
+        flightService.update(1L,request);
 
-        when(flightMapper.update(flight_id, departureAirport, arrivalAirport, request)).thenReturn(updatedFlight);
-        when(flightRepository.save(updatedFlight)).thenReturn(updatedFlight);
-
-        flightService.update(flight_id, request);
-
-        verify(flightMapper).update(flight_id, departureAirport, arrivalAirport, request);
-        verify(flightRepository).save(updatedFlight);
-
+        // Then
+        verify(flightRepository).save(flight);
     }
+
+    @Test
+    public void it_should_delete() {
+
+        // Given
+        Flight flight = Flight.builder()
+                .id(1L)
+                .build();
+
+        when(flightService.getById(flight.getId())).thenReturn(flight);
+
+        // When
+        flightService.delete(flight.getId());
+
+        // Then
+        verify(flightRepository).delete(flight);
+    }
+
 }

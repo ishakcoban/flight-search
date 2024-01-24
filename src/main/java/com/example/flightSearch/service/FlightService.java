@@ -52,9 +52,6 @@ public class FlightService {
 
     public void create(CreateFlightRequest createFlightRequest) {
 
-        Airport departureAirport = airportService.getById(createFlightRequest.getDepartureAirport());
-        Airport arrivalAirport = airportService.getById(createFlightRequest.getArrivalAirport());
-
         if (Objects.equals(createFlightRequest.getDepartureAirport(), createFlightRequest.getArrivalAirport())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Airports that are provided cannot be same!");
         }
@@ -70,6 +67,9 @@ public class FlightService {
         if (createFlightRequest.getPrice() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Price must not be smaller than zero!");
         }
+
+        Airport departureAirport = airportService.getById(createFlightRequest.getDepartureAirport());
+        Airport arrivalAirport = airportService.getById(createFlightRequest.getArrivalAirport());
 
         Flight flight = flightMapper.create(createFlightRequest, departureAirport, arrivalAirport);
         flightRepository.save(flight);
